@@ -6,6 +6,14 @@ Este repositório contém a solução técnica para o case de Data Architect da 
 
 A solução foi construída utilizando uma arquitetura de Data Lake com o padrão Medallion, garantindo que os dados sejam organizados, limpos e otimizados para consumo.
 
+## 1.1 A Fonte de Dados (Contextualização)
+
+Os dados utilizados neste projeto são fornecidos pela **TLC (Taxi & Limousine Commission)** da cidade de Nova York. A TLC publica dados de registro de viagens de diferentes tipos de táxis, incluindo Yellow, Green, For-Hire Vehicle (FHV) e High Volume For-Hire Vehicle (FHVHV), em formato Parquet.
+
+Os arquivos de dados são disponibilizados mensalmente, e a nossa solução se conecta diretamente a essa fonte para automatizar o processo de ingestão, garantindo que o pipeline seja sempre atualizado com os dados mais recentes.
+site: https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page
+
+
 ## 2. Arquitetura da Solução
 
 ![Diagrama da Arquitetura](images/Arquitetura.jpg)
@@ -30,7 +38,43 @@ As seguintes escolhas técnicas foram feitas para atender aos critérios de aval
 * **Formato de Dados `Delta Lake`:** Utilizado nas camadas Silver e Gold por oferecer as propriedades ACID e otimizações de performance, o que é ideal para tabelas de BI.
 * **Modelagem Fato e Dimensão:** A camada Gold foi modelada em um `star schema` simplificado para otimizar as consultas analíticas e facilitar o consumo dos dados por ferramentas de BI.
 
-## 4. Estrutura do Repositório
+## 4. Otimização e Particionamento dos Dados
+
+O particionamento é uma técnica crucial em Data Lakes que otimiza a performance das consultas e o gerenciamento do armazenamento. A nossa solução aplica particionamento nas camadas Bronze, Silver e Gold para organizar os dados por tipo de táxi, ano e mês.
+
+* **Benefícios:**
+    * **Performance em Consultas:** As consultas que filtram por ano ou mês se tornam extremamente rápidas, pois o Spark lê apenas os arquivos relevantes, ignorando o restante.
+    * **Organização e Manutenibilidade:** O armazenamento no S3 fica mais organizado, com uma estrutura de pastas clara.
+    * **Custo-Benefício:** Consultas mais rápidas e com menos I/O reduzem os custos de processamento.
+
+---
+
+
+
+
+## 5. Testes de Qualidade de Dados (Data Quality)
+
+Para garantir que os dados na camada Silver sejam confiáveis, o pipeline inclui testes de qualidade de dados. Três colunas de validação foram adicionadas para sinalizar possíveis inconsistências:
+
+* `is_valid_total_amount`: Verifica se o valor total da corrida é maior que zero.
+* `is_valid_passenger_count`: Verifica se a contagem de passageiros é maior que zero.
+* `is_valid_trip_time`: Garante que a data de `dropoff` seja posterior à data de `pickup`.
+
+Essas colunas são de extrema importância, pois permitem que a equipe de análise decida se deseja incluir ou remover dados inconsistentes em suas consultas.
+
+---
+
+
+## 6. Principais Desafios do Projeto
+
+Durante o desenvolvimento deste pipeline, alguns desafios importantes foram encontrados e superados, o que demonstra a capacidade de solucionar problemas de forma pragmática:
+
+* **Inconsistência de Schema:** Os arquivos de dados de origem, mesmo sendo do mesmo tipo de táxi, apresentavam pequenas variações de schema entre os meses. Isso foi resolvido na camada Silver, lendo cada mês individualmente e padronizando os schemas antes de unificar os dados.
+* **Limitações do Ambiente Gratuito:** O ambiente do Databricks Community Edition e a AWS Free Tier têm restrições de permissão e recursos. Isso foi contornado usando uma abordagem serverless com AWS Lambda para a ingestão e otimizações de código para garantir que o pipeline funcione sem custos.
+
+---
+
+## 7. Estrutura do Repositório
 
 O repositório está organizado conforme solicitado no case técnico:
 
@@ -40,7 +84,9 @@ O repositório está organizado conforme solicitado no case técnico:
     * `README.md`: Este arquivo, com a documentação do projeto.
     * `requirements.txt`: Lista das dependências Python (`boto3`, `requests`).
 
-## 5. Instruções de Execução
+---
+
+## 8. Instruções de Execução
 
 Para executar o pipeline, siga os passos abaixo:
 
@@ -56,7 +102,9 @@ Para executar o pipeline, siga os passos abaixo:
     * Execute o notebook **`02-Processamento_Silver_Layer`**. Ele irá limpar e padronizar os dados.
     * Execute o notebook **`03-Processamento_Gold_Layer`**. Ele irá criar as tabelas de fato e dimensão e rodar as análises.
 
-## 6. Resultados da Análise
+---
+
+## 9. Resultados da Análise
 
 As seguintes consultas foram executadas na camada Gold para responder às perguntas do case técnico.
 
