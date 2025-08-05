@@ -8,6 +8,8 @@ A solução foi construída utilizando uma arquitetura de Data Lake com o padrã
 
 ## 2. Arquitetura da Solução
 
+![Diagrama da Arquitetura](images/diagrama_arquitetura.jpeg)
+
 A arquitetura da solução segue um modelo de pipeline de dados moderno, com três camadas principais:
 
 * **Ingestão Serverless (AWS Lambda):** Uma função Lambda automatiza a ingestão dos dados de origem, baixando os arquivos Parquet e salvando-os em um bucket S3.
