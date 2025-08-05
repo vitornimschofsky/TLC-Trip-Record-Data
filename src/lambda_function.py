@@ -1,3 +1,4 @@
+# AQUI EU FAÇO A EXTRAÇÃO DOS DADOS DO CASE
 import json
 import requests
 import boto3
@@ -41,4 +42,5 @@ def lambda_handler(event, context):
     return {
         'statusCode': 200,
         'body': json.dumps('Ingestão concluída (verifique os logs para erros)!')
+
     }
