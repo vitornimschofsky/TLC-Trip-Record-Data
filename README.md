@@ -8,7 +8,7 @@ A solução foi construída utilizando uma arquitetura de Data Lake com o padrã
 
 ## 2. Arquitetura da Solução
 
-![Diagrama da Arquitetura](images/Diagrama sem nome.jpg)
+![Diagrama da Arquitetura](images/Arquitetura.jpg)
 
 A arquitetura da solução segue um modelo de pipeline de dados moderno, com três camadas principais:
 
